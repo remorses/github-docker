@@ -16,6 +16,10 @@ Build and publish your repository as a Docker image and push it to GitHub Packag
 
 Optional. The repository to push the image to. Defaults to current repository. Must be specified in format `user/repo`.
 
+### `context`
+
+Optional. Where to build
+
 ### `imageName`
 
 Optional. The desired name for the image. Defaults to current repository name.

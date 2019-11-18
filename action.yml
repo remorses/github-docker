@@ -16,6 +16,9 @@ inputs:
   imageTag:
     description: 'The desired tag for the image. Defaults to current branch or release version number.'
     required: false
+  context:
+    description: 'Where to build the image'
+    required: false
 outputs:
   imageURL:
     description: 'The URL of the image.'

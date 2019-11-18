@@ -28,7 +28,7 @@ async function run() {
     */
 
     // Set the workspace directory.
-    const workspace = process.env['GITHUB_WORKSPACE'];
+    const workspace = core.getInput('context',) || process.env['GITHUB_WORKSPACE'];
 
     // Log in to Docker.
     const username = core.getInput('username', { required: true });
@@ -53,17 +53,28 @@ async function run() {
     if (!imageTag) imageTag = refArray[refArray.length - 1];
 
     // Build the Docker image.
+    const imageUrlBase = `docker.pkg.github.com/${repository}/${imageName}`
     await exec.exec(
       `docker`,
-      ['build', '--tag', `docker.pkg.github.com/${repository}/${imageName}:${imageTag}`, workspace]);
+      ['build', '--tag', imageUrlBase + ':' + imageTag, workspace]);
+
+    await exec.exec(
+      `docker`,
+      ['tag', imageUrlBase + ':' + imageTag, imageUrlBase + ':latest', ]);
 
     // Push the Docker image.
     await exec.exec(
       `docker`,
-      ['push', `docker.pkg.github.com/${repository}/${imageName}:${imageTag}`]);
+      ['push', imageUrlBase + ':latest']);
+    // Push the Docker image.
+    await exec.exec(
+      `docker`,
+      ['push', imageUrlBase + ':' + imageTag]);
 
     // Output the image URL.
-    core.setOutput('imageURL', `docker.pkg.github.com/${repository}/${imageName}:${imageTag}`);
+    const imageUrl = `docker.pkg.github.com/${repository}/${imageName}:latest`
+    core.setOutput('imageURL', imageUrl);
+    core.info(imageUrl)
   }
   catch (error) {
     core.setFailed(error.message);
