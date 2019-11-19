@@ -55,10 +55,15 @@ async function run() {
         if (!imageName) imageName = repoArray[repoArray.length - 1]
 
         const imageUrlBase = `docker.pkg.github.com/${repository}/${imageName}`
-        const build = async (tag) => {
+        const build = async (tags) => {
+            const images = tags.map((tag) => imageUrlBase + ':' + tag)
+            const cacheArgs = ['--cache-from', images[0]]
+            const tagsArgs = images
+                .map((img) => ['--tag', img])
+                .reduce((a, b) => a.concat(b), [])
             await exec.exec(
                 `docker`,
-                ['build', '--tag', imageUrlBase + ':' + tag, workspace],
+                ['build', ...cacheArgs, ...tagsArgs, workspace],
                 { env: { DOCKER_BUILDKIT: '1' } }
             )
         }
@@ -70,8 +75,7 @@ async function run() {
         if (!imageTag) imageTag = refArray[refArray.length - 1]
 
         // Build the Docker image.
-        await build(imageTag)
-        await build('latest')
+        await build([imageTag, 'latest'])
 
         // Push the Docker image.
         await exec.exec(`docker`, ['push', imageUrlBase + ':latest'])
