@@ -75,7 +75,7 @@ async function run() {
         if (!imageTag) imageTag = refArray[refArray.length - 1]
 
         // Build the Docker image.
-        await build([imageTag, 'latest'])
+        await build(['latest', imageTag,])
 
         // Push the Docker image.
         await exec.exec(`docker`, ['push', imageUrlBase + ':latest'])
